@@ -3,7 +3,7 @@
     "case_id": "T2SQL-001",
     "category": "single_table",
     "question": "查询所有在上交所上市的股票。",
-    "expected_intent": "筛选 stocks.exchange 为上交所或 SSE 的股票基础信息"
+    "expected_intent": "筛选 stocks.exchange 为 SSE 或上交所的股票基础信息"
   },
   {
     "case_id": "T2SQL-002",
@@ -13,75 +13,75 @@
   },
   {
     "case_id": "T2SQL-003",
-    "category": "top_n",
-    "question": "最近一个交易日成交量最高的10支股票是什么？",
-    "expected_intent": "按 daily_prices.volume 降序返回前 10 条"
+    "category": "history_price",
+    "question": "查询某支股票最近30个交易日的收盘价走势。",
+    "expected_intent": "按 symbol 和 trade_date 范围查询 daily_prices.close_price"
   },
   {
     "case_id": "T2SQL-004",
-    "category": "top_n",
-    "question": "最近一个交易日涨幅最高的5支股票有哪些？",
-    "expected_intent": "按 daily_prices.change_pct 降序返回前 5 条"
+    "category": "history_price",
+    "question": "某支股票最近一年的最高收盘价是多少？",
+    "expected_intent": "按 symbol 和最近一年日期范围计算 max(daily_prices.close_price)"
   },
   {
     "case_id": "T2SQL-005",
-    "category": "financial_indicator",
-    "question": "哪些股票的市盈率低于20？",
-    "expected_intent": "查询 financial_indicators.pe_ratio 小于 20 的股票"
+    "category": "top_n",
+    "question": "最近一个交易日成交量最高的10支股票是什么？",
+    "expected_intent": "按 daily_prices 最新 trade_date 的 volume 降序返回前 10 条"
   },
   {
     "case_id": "T2SQL-006",
-    "category": "financial_indicator",
-    "question": "哪些股票的ROE大于15%且负债率低于50%？",
-    "expected_intent": "同时筛选 roe 和 debt_ratio"
+    "category": "top_n",
+    "question": "最近一个交易日涨幅最高的5支股票有哪些？",
+    "expected_intent": "按 daily_prices 最新 trade_date 的 change_pct 降序返回前 5 条"
   },
   {
     "case_id": "T2SQL-007",
-    "category": "aggregation",
-    "question": "各行业平均市盈率是多少？",
-    "expected_intent": "按 stocks.industry 分组计算 avg(pe_ratio)"
+    "category": "quote",
+    "question": "哪些股票当前市盈率低于20？",
+    "expected_intent": "查询 stock_quotes.pe_dynamic 小于 20 的股票"
   },
   {
     "case_id": "T2SQL-008",
+    "category": "quote",
+    "question": "当前总市值最高的10支股票有哪些？",
+    "expected_intent": "按 stock_quotes.total_market_value 降序返回前 10 条"
+  },
+  {
+    "case_id": "T2SQL-009",
+    "category": "quote",
+    "question": "当前市净率最低的10支股票有哪些？",
+    "expected_intent": "按 stock_quotes.pb_ratio 升序返回前 10 条"
+  },
+  {
+    "case_id": "T2SQL-010",
+    "category": "join",
+    "question": "查询软件服务行业股票的最新价和涨跌幅。",
+    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 过滤并返回 latest_price、change_pct"
+  },
+  {
+    "case_id": "T2SQL-011",
+    "category": "join",
+    "question": "查询银行行业中当前市盈率最低的5支股票。",
+    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 过滤并按 pe_dynamic 升序取前 5 条"
+  },
+  {
+    "case_id": "T2SQL-012",
     "category": "aggregation",
     "question": "每个行业分别有多少支股票？",
     "expected_intent": "按 stocks.industry 分组计数"
   },
   {
-    "case_id": "T2SQL-009",
-    "category": "date_range",
-    "question": "查询某支股票最近30个交易日的收盘价走势。",
-    "expected_intent": "按 stock 和 trade_date 范围查询 close_price"
-  },
-  {
-    "case_id": "T2SQL-010",
-    "category": "date_range",
-    "question": "某支股票最近一年的最高收盘价是多少？",
-    "expected_intent": "按股票和日期范围计算 max(close_price)"
-  },
-  {
-    "case_id": "T2SQL-011",
-    "category": "join",
-    "question": "查询新能源板块中所有股票的最新收盘价。",
-    "expected_intent": "连接板块、股票和行情表查询最新收盘价"
-  },
-  {
-    "case_id": "T2SQL-012",
-    "category": "join",
-    "question": "查询每支股票所属的板块名称。",
-    "expected_intent": "连接 stocks、stock_sector_map 和 sectors"
-  },
-  {
     "case_id": "T2SQL-013",
-    "category": "news",
-    "question": "某支股票最近有哪些新闻或公告摘要？",
-    "expected_intent": "按 stock_id 查询 market_news 并按 publish_date 排序"
+    "category": "aggregation",
+    "question": "各行业平均市盈率是多少？",
+    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 分组计算 avg(pe_dynamic)"
   },
   {
     "case_id": "T2SQL-014",
-    "category": "summary",
-    "question": "查询某股票最近一期的收入、净利润和毛利率。",
-    "expected_intent": "查询 financial_indicators 最新报告期字段"
+    "category": "aggregation",
+    "question": "每个行业最近一个交易日的平均成交额是多少？",
+    "expected_intent": "连接 stocks 和 daily_prices，按最新 trade_date 和 industry 分组计算 avg(turnover)"
   },
   {
     "case_id": "T2SQL-015",

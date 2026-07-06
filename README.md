@@ -2,9 +2,9 @@
 
 本项目是小学期课程项目《基于 Text2SQL 的大模型智能问答系统实现》的工程仓库，并预留第二阶段《基于 RAG 的大模型智能问答系统实现》能力。系统目标是让用户使用自然语言查询结构化数据库，后续再通过 RAG 查询非结构化知识文档。
 
-当前阶段目标是“框架规范 + 最小可运行 + 符合课程文档要求”。项目先实现 Text2SQL 最小闭环的接口骨架，暂时使用 mock schema、mock SQL 和 mock 查询结果，后续再接入真实大模型、数据库和评估流程。
+当前阶段目标是“框架规范 + 最小可运行 + 符合课程文档要求”。项目先实现 Text2SQL 最小闭环的接口骨架，暂时使用 mock schema、mock SQL 和 mock 查询结果，后续通过 AkShare 采集股票数据写入 SQLite，再接入真实大模型、数据库查询和评估流程。
 
-初始演示数据集选择股票相关数据。股票数据仅用于课程项目演示、数据库问答测试和字段概念解释，不用于真实投资建议。
+初始演示数据集选择股票相关数据。第一阶段计划采集约 30 支 A 股的基础信息、最近 1 年日行情和最新行情快照，形成 `stocks`、`daily_prices`、`stock_quotes` 三张核心表。股票数据仅用于课程项目演示、数据库问答测试和字段概念解释，不用于真实投资建议。
 
 ## 当前技术路线
 
@@ -20,6 +20,16 @@
 
 MVP 阶段只允许 `SELECT` 查询。RAG、Agent、多轮复杂推理和真实行情接入都放到后续阶段。
 
+数据使用路线：
+
+```text
+AkShare
+→ Python 采集脚本
+→ 清洗字段并写入 SQLite
+→ Text2SQL 查询 SQLite
+→ 前端展示结果
+```
+
 ## 目录结构
 
 ```text
@@ -27,9 +37,11 @@ MVP 阶段只允许 `SELECT` 查询。RAG、Agent、多轮复杂推理和真实�
 ├── backend/                    # FastAPI 后端最小骨架
 │   ├── app/
 │   │   ├── db/                 # 数据库初始化脚本预留位置
+│   │   ├── scripts/            # AkShare 数据采集脚本预留位置
 │   │   ├── services/           # schema 读取、SQL 安全校验、Text2SQL 服务
 │   │   └── main.py             # API 入口
 │   ├── README.md
+│   ├── requirements-data.txt   # AkShare 数据采集可选依赖
 │   └── requirements.txt
 ├── frontend/                   # 前端基础页面框架
 │   ├── index.html
@@ -96,19 +108,20 @@ frontend/index.html
 
 - 已建立 `backend/`、`frontend/`、`docs/`、`tests/` 基础结构。
 - 后端已提供 FastAPI mock 接口：健康检查、schema 查询、Text2SQL 查询。
-- 后端已预留数据库初始化脚本、schema 读取模块、SQL 安全校验模块。
+- 后端已预留数据库初始化脚本、AkShare 数据采集脚本位置、schema 读取模块、SQL 安全校验模块。
 - 前端已提供问答输入区、SQL 展示区、查询结果展示区、系统状态/测试结果区域。
 - `tests/text2sql_cases.json` 已提供第一批股票相关自然语言测试问题。
 - 课程要求文档已建立骨架，便于后续补充截图、测试结果和设计细节。
 
 ## 后续开发计划
 
-1. 完成 SQLite 股票演示库建表和样例数据导入。
-2. 将 `/api/schema` 从 mock 数据切换为真实数据库 introspection。
-3. 接入统一 `LLMClient`，替换 mock SQL 生成逻辑。
-4. 完善 SQL 安全校验，限制只读查询并自动补充 `LIMIT`。
-5. 前端接入真实 API 状态、错误提示和表格/图表展示。
-6. 基于 `tests/text2sql_cases.json` 记录执行成功率和错误类型。
+1. 完成 SQLite 股票演示库建表：`stocks`、`daily_prices`、`stock_quotes`。
+2. 编写 AkShare 数据采集脚本，采集约 30 支 A 股、最近 1 年日行情和一次最新行情快照。
+3. 将 `/api/schema` 从 mock 数据切换为真实数据库 introspection。
+4. 接入统一 `LLMClient`，替换 mock SQL 生成逻辑。
+5. 完善 SQL 安全校验，限制只读查询并自动补充 `LIMIT`。
+6. 前端接入真实 API 状态、错误提示和表格/图表展示。
+7. 基于 `tests/text2sql_cases.json` 记录执行成功率和错误类型。
 
 ## 注意事项
 

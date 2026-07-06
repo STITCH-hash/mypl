@@ -12,13 +12,14 @@
 FastAPI 后端
   ↓
 Text2SQL 服务层
+  ├── AkShare 数据采集脚本
   ├── Schema 读取模块
   ├── Prompt 构造模块
   ├── LLMClient 预留模块
   ├── SQL 安全校验模块
   └── SQL 执行模块
   ↓
-股票演示数据库 SQLite/MySQL
+股票演示数据库 SQLite
 
 第二阶段：
 RAG 文档管理 → 文档切分 → 向量库 Chroma → 检索增强回答
@@ -30,6 +31,7 @@ RAG 文档管理 → 文档切分 → 向量库 Chroma → 检索增强回答
 | --- | --- |
 | `backend/` | FastAPI 后端服务 |
 | `backend/app/db/` | 数据库初始化脚本和连接代码预留 |
+| `backend/app/scripts/` | AkShare 数据采集脚本预留 |
 | `backend/app/services/` | schema 读取、SQL 安全校验、Text2SQL 业务服务 |
 | `frontend/` | 前端页面骨架 |
 | `docs/` | 课程文档和技术文档 |
@@ -45,6 +47,7 @@ RAG 文档管理 → 文档切分 → 向量库 Chroma → 检索增强回答
 | SQL 安全校验 | `backend/app/services/sql_safety.py` | 当前只允许单条 `SELECT`，后续扩展表字段校验 |
 | Text2SQL 服务 | `backend/app/services/text2sql_service.py` | 当前返回 mock SQL 和 mock 数据，后续接入 LLM |
 | 数据库脚本 | `backend/app/db/init_stock_demo.sql` | 预留股票演示库建表脚本 |
+| 数据采集脚本 | `backend/app/scripts/sync_akshare_data.py` | 后续采集 AkShare 数据并写入 SQLite |
 
 ## 5. 前端模块设计
 
@@ -69,23 +72,24 @@ RAG 文档管理 → 文档切分 → 向量库 Chroma → 检索增强回答
 
 ## 7. 数据库设计
 
-初始数据库采用股票演示数据方向。当前建表脚本先保留三张核心表：
+初始数据库采用股票演示数据方向。第一阶段使用 AkShare 作为数据来源，但运行时 Text2SQL 只查询本地 SQLite。当前核心表为：
 
 - `stocks`：股票基础信息。
-- `daily_prices`：日行情数据。
-- `financial_indicators`：财务指标数据。
+- `daily_prices`：最近 1 年历史日行情数据。
+- `stock_quotes`：一次最新行情快照，包含最新价、市盈率、市净率、市值等字段。
 
-后续可扩展 `sectors`、`stock_sector_map`、`market_news` 和 `watchlists`。详细设计见 `docs/DATASET_DESIGN.md`。
+后续可扩展 `sectors`、`stock_sector_map`、`market_news`、`financial_indicators` 和 `watchlists`。详细设计见 `docs/DATASET_DESIGN.md`。
 
 ## 8. Text2SQL 处理流程
 
-1. 前端提交自然语言问题。
-2. 后端读取数据库 schema。
-3. 构造包含 schema 和安全约束的 prompt。
-4. 调用大模型生成 SQL。
-5. 执行 SQL 安全校验。
-6. 查询数据库并获得结果。
-7. 返回 SQL、表格数据和自然语言总结。
+1. 先通过 AkShare 数据采集脚本生成或更新 SQLite 演示库。
+2. 前端提交自然语言问题。
+3. 后端读取 SQLite 数据库 schema。
+4. 构造包含 schema 和安全约束的 prompt。
+5. 调用大模型生成 SQL。
+6. 执行 SQL 安全校验。
+7. 查询 SQLite 并获得结果。
+8. 返回 SQL、表格数据和自然语言总结。
 
 当前代码只实现 mock 版本，流程位置已经预留。
 

@@ -114,7 +114,7 @@
 
 ### `POST /api/rag/query`
 
-用于知识库问答，例如解释股票概念、财务指标、字段口径和系统使用说明。
+用于知识库问答，例如解释股票概念、估值指标、行情字段口径和系统使用说明。
 
 请求体：
 
@@ -168,9 +168,9 @@
   "question": "查询市盈率低于20的股票，并解释市盈率低可能代表什么。",
   "route": "hybrid",
   "text2sql": {
-    "sql": "SELECT s.symbol, s.stock_name, f.pe_ratio FROM financial_indicators f JOIN stocks s ON f.stock_id = s.stock_id WHERE f.pe_ratio < 20 ORDER BY f.pe_ratio ASC LIMIT 20",
+    "sql": "SELECT s.symbol, s.stock_name, q.pe_dynamic FROM stock_quotes q JOIN stocks s ON q.stock_id = s.stock_id WHERE q.pe_dynamic < 20 ORDER BY q.pe_dynamic ASC LIMIT 20",
     "safe": true,
-    "columns": ["symbol", "stock_name", "pe_ratio"],
+    "columns": ["symbol", "stock_name", "pe_dynamic"],
     "rows": []
   },
   "rag": {

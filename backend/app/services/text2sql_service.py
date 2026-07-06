@@ -6,11 +6,11 @@ def build_mock_sql(question: str) -> str:
     """Return simple mock SQL so frontend and API integration can proceed."""
     if "市盈率" in question or "pe" in question.lower():
         return (
-            "SELECT s.symbol, s.stock_name, f.pe_ratio "
-            "FROM financial_indicators f "
-            "JOIN stocks s ON f.stock_id = s.stock_id "
-            "WHERE f.pe_ratio < 20 "
-            "ORDER BY f.pe_ratio ASC "
+            "SELECT s.symbol, s.stock_name, q.pe_dynamic "
+            "FROM stock_quotes q "
+            "JOIN stocks s ON q.stock_id = s.stock_id "
+            "WHERE q.pe_dynamic < 20 "
+            "ORDER BY q.pe_dynamic ASC "
             "LIMIT 10"
         )
 
@@ -34,11 +34,11 @@ def run_mock_text2sql(request: Text2SQLRequest) -> Text2SQLResponse:
     sql = build_mock_sql(request.question)
     safe = is_safe_select(sql)
 
-    if "pe_ratio" in sql:
-        columns = ["symbol", "stock_name", "pe_ratio"]
+    if "pe_dynamic" in sql:
+        columns = ["symbol", "stock_name", "pe_dynamic"]
         rows = [
-            {"symbol": "600000", "stock_name": "示例银行", "pe_ratio": 8.6},
-            {"symbol": "000001", "stock_name": "示例科技", "pe_ratio": 18.4},
+            {"symbol": "600000", "stock_name": "示例银行", "pe_dynamic": 8.6},
+            {"symbol": "000001", "stock_name": "示例科技", "pe_dynamic": 18.4},
         ]
     elif "volume" in sql:
         columns = ["symbol", "stock_name", "volume"]
