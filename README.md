@@ -110,7 +110,7 @@ frontend/index.html
 | [docs/TECHNICAL_ROUTE.md](docs/TECHNICAL_ROUTE.md) | 项目定位、技术路线、阶段规划、技术栈和模块划分 |
 | [docs/DATASET_DESIGN.md](docs/DATASET_DESIGN.md) | 股票演示数据集表结构、示例问题和 RAG 知识库建议 |
 | [docs/API_DESIGN.md](docs/API_DESIGN.md) | Text2SQL、Schema、RAG、Hybrid 和评估 API 初版设计 |
-| [docs/CODEX_WORKFLOW.md](docs/CODEX_WORKFLOW.md) | 后续使用 Codex 协作时的 Git 与工程规范 |
+| [docs/AI_AGENT_COLLABORATION.md](docs/AI_AGENT_COLLABORATION.md) | 后续使用 AI 写作工具或 Agent 协作时的 Git 与工程规范 |
 
 ## 当前完成状态
 
