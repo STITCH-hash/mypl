@@ -40,6 +40,7 @@
 | P0 | 创建 FastAPI 项目骨架 | 成员 A | 本地能启动服务，提供健康检查接口 |
 | P0 | 创建 SQLite 股票演示库和建表脚本 | 成员 A | 建立 `stocks`、`daily_prices`、`stock_quotes` 三张核心表 |
 | P0 | 编写 AkShare 数据采集脚本 | 成员 A + 成员 D | 能采集约 30 支股票基础信息、最近 1 年日行情和最新行情快照并写入 SQLite |
+| P1 | 实现每日定时同步 | 成员 A | 每天 18:00 自动触发 AkShare 同步脚本，且不影响普通问答接口 |
 | P0 | 封装 `LLMClient` 和 Text2SQL prompt | 成员 C | 输入问题和 schema 后能返回 SQL 字符串 |
 | P0 | 创建 Vue 问答页面 | 成员 B | 能输入问题、提交请求并展示 mock 结果 |
 | P0 | 建立测试问题集 | 成员 D | 覆盖单表、多表、聚合、时间范围、Top-N 和指标查询 |

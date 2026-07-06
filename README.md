@@ -30,6 +30,14 @@ AkShare
 → 前端展示结果
 ```
 
+数据更新策略：
+
+```text
+第一阶段：手动运行采集脚本，保证演示数据可复现
+第二阶段：每天 18:00 定时运行采集脚本，更新 SQLite
+不采用：用户每次提问时实时请求 AkShare
+```
+
 ## 目录结构
 
 ```text
@@ -117,11 +125,12 @@ frontend/index.html
 
 1. 完成 SQLite 股票演示库建表：`stocks`、`daily_prices`、`stock_quotes`。
 2. 编写 AkShare 数据采集脚本，采集约 30 支 A 股、最近 1 年日行情和一次最新行情快照。
-3. 将 `/api/schema` 从 mock 数据切换为真实数据库 introspection。
-4. 接入统一 `LLMClient`，替换 mock SQL 生成逻辑。
-5. 完善 SQL 安全校验，限制只读查询并自动补充 `LIMIT`。
-6. 前端接入真实 API 状态、错误提示和表格/图表展示。
-7. 基于 `tests/text2sql_cases.json` 记录执行成功率和错误类型。
+3. 增加每天 18:00 的定时同步任务，用于更新 SQLite 演示库。
+4. 将 `/api/schema` 从 mock 数据切换为真实数据库 introspection。
+5. 接入统一 `LLMClient`，替换 mock SQL 生成逻辑。
+6. 完善 SQL 安全校验，限制只读查询并自动补充 `LIMIT`。
+7. 前端接入真实 API 状态、错误提示和表格/图表展示。
+8. 基于 `tests/text2sql_cases.json` 记录执行成功率和错误类型。
 
 ## 注意事项
 

@@ -12,6 +12,7 @@
 | Schema API 测试 | 已具备 mock | 检查 `/api/schema` 响应结构 |
 | Text2SQL API 测试 | 已具备 mock | 检查 `/api/text2sql/query` 响应结构 |
 | SQL 安全测试 | 初步具备 | 检查非 `SELECT` SQL 是否被拦截 |
+| 定时同步测试 | 待实现 | 检查每日 18:00 调度配置和手动触发同步流程 |
 | 前端页面测试 | 待人工检查 | 检查输入区、SQL 区、结果区和状态区 |
 | RAG 测试 | 后续补充 | 第二阶段实现后再记录 |
 
@@ -42,6 +43,7 @@ tests/text2sql_cases.json
 | API-001 | `GET /api/health` | 无 | 返回 `status=ok` | 待执行 | 待测 |
 | API-002 | `GET /api/schema` | `database=stock_demo` | 返回表结构列表 | 待执行 | 待测 |
 | API-003 | `POST /api/text2sql/query` | 股票自然语言问题 | 返回 SQL、列、行和摘要 | 待执行 | 待测 |
+| SYNC-001 | 定时同步脚本 | 启动调度脚本 | 注册每日 18:00 同步任务 | 待执行 | 待测 |
 
 ## 6. 指标记录
 

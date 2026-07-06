@@ -13,6 +13,7 @@ FastAPI 后端
   ↓
 Text2SQL 服务层
   ├── AkShare 数据采集脚本
+  ├── 每日 18:00 定时同步脚本
   ├── Schema 读取模块
   ├── Prompt 构造模块
   ├── LLMClient 预留模块
@@ -48,6 +49,7 @@ RAG 文档管理 → 文档切分 → 向量库 Chroma → 检索增强回答
 | Text2SQL 服务 | `backend/app/services/text2sql_service.py` | 当前返回 mock SQL 和 mock 数据，后续接入 LLM |
 | 数据库脚本 | `backend/app/db/init_stock_demo.sql` | 预留股票演示库建表脚本 |
 | 数据采集脚本 | `backend/app/scripts/sync_akshare_data.py` | 后续采集 AkShare 数据并写入 SQLite |
+| 定时同步脚本 | `backend/app/scripts/run_daily_sync_scheduler.py` | 每天 18:00 触发一次 AkShare 数据同步 |
 
 ## 5. 前端模块设计
 
@@ -93,22 +95,29 @@ RAG 文档管理 → 文档切分 → 向量库 Chroma → 检索增强回答
 
 当前代码只实现 mock 版本，流程位置已经预留。
 
-## 9. 安全设计
+## 9. 数据同步设计
+
+数据同步分为手动同步和定时同步两种方式。第一阶段优先使用手动同步，方便调试字段映射和控制演示数据；第二阶段启动独立调度脚本，每天 18:00 自动执行一次同步。
+
+定时同步不放在 FastAPI 主进程中，原因是开发环境常用 `uvicorn --reload`，如果调度器跟随 Web 进程启动，可能因为热重载或多 worker 导致重复执行。独立脚本更容易在课程演示中说明，也更方便后续替换为系统 cron、Windows 任务计划程序或服务器定时任务。
+
+## 10. 安全设计
 
 - MVP 阶段只允许 `SELECT` 查询。
 - 禁止 `INSERT`、`UPDATE`、`DELETE`、`DROP`、`ALTER`、`TRUNCATE`、`CREATE` 等危险语句。
 - 禁止提交 API Key、`.env`、虚拟环境、缓存、日志和临时数据库文件。
 - 后续补充表名字段名白名单校验、自动 `LIMIT`、错误日志和审计记录。
 
-## 10. 部署与运行设计
+## 11. 部署与运行设计
 
 开发阶段采用本地运行：
 
 - 后端：`uvicorn app.main:app --reload`
 - 前端：直接打开静态页面，后续改为 Vue 开发服务器
 - 数据库：SQLite 本地文件，后续可切换 MySQL
+- 数据同步：手动运行 `python -m app.scripts.sync_akshare_data`，或单独运行 `python -m app.scripts.run_daily_sync_scheduler` 在每天 18:00 自动同步
 
-## 11. 后续待补充
+## 12. 后续待补充
 
 - 真实 LLMClient 设计。
 - 数据库连接配置和迁移策略。
