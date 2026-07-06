@@ -1,4 +1,4 @@
-# 团队任务分工
+# 小组分工说明
 
 本项目按 4 人团队协作设计，暂时使用成员 A/B/C/D 作为占位名称，不写具体真实姓名。当前阶段以 Text2SQL 最小闭环为最高优先级，RAG 能力作为第二阶段逐步接入。
 
@@ -45,3 +45,15 @@
 | P1 | SQL 安全校验 | 成员 A + 成员 C | 危险语句被拦截，无 `LIMIT` 的查询能自动限制 |
 | P1 | 查询结果自然语言总结 | 成员 C | 模型能基于结果生成简洁摘要且不编造 |
 | P1 | 演示脚本和问题记录表 | 成员 D | 可以支撑课堂展示和最终报告撰写 |
+
+## 5. 课程审核对应关系
+
+| 审核材料 | 主要负责人 | 当前仓库位置 |
+| --- | --- | --- |
+| 需求规格说明书 | 成员 D | `docs/REQUIREMENTS_SPECIFICATION.md` |
+| 系统设计说明书 | 成员 A + 成员 C | `docs/SYSTEM_DESIGN_SPECIFICATION.md` |
+| 测试报告 | 成员 D | `docs/TEST_REPORT.md` |
+| 小组分工说明 | 成员 D | `docs/TASK_ASSIGNMENT.md` |
+| 后端接口 Demo | 成员 A | `backend/` |
+| 前端页面 Demo | 成员 B | `frontend/` |
+| 测试问题集 | 成员 D | `tests/text2sql_cases.json` |

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text2SQL 智能问答系统</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="page-header">
+        <h1>Text2SQL 智能问答系统</h1>
+        <p>课程项目最小页面骨架，当前使用 mock 接口验证流程。</p>
+      </header>
+
+      <section class="workspace">
+        <section class="panel question-panel">
+          <h2>问答输入区</h2>
+          <textarea id="questionInput" rows="5">最近一个交易日成交量最高的10支股票是什么？</textarea>
+          <button id="submitButton" type="button">提交问题</button>
+        </section>
+
+        <section class="panel">
+          <h2>SQL 展示区</h2>
+          <pre id="sqlOutput">等待生成 SQL...</pre>
+        </section>
+
+        <section class="panel result-panel">
+          <h2>查询结果展示区</h2>
+          <div id="summaryOutput" class="summary">等待查询结果...</div>
+          <div id="tableOutput" class="table-wrapper"></div>
+        </section>
+
+        <section class="panel status-panel">
+          <h2>系统状态 / 测试结果</h2>
+          <ul id="statusList">
+            <li>后端接口：待检测</li>
+            <li>SQL 安全校验：mock 已启用</li>
+            <li>测试用例：见 tests/text2sql_cases.json</li>
+          </ul>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
