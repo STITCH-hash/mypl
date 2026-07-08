@@ -97,7 +97,24 @@ uvicorn app.main:app --reload
 frontend/index.html
 ```
 
-如果后端已启动，页面会优先调用后端接口；如果接口不可用，页面会展示本地 mock 结果。
+由于浏览器 CORS 策略限制，直接用 file:// 协议打开时无法加载 tests/text2sql_cases.json。
+推荐使用 VS Code Live Server：右键 index.html → "Open with Live Server" 打开。
+
+如果后端已启动，前端会优先调用后端接口；如果接口不可用，前端自动从 tests/text2sql_cases.json 加载 mock 数据。
+
+## 后端接口格式
+
+{
+  "sql": "SELECT ...",
+  "columns": ["股票名称", "成交量"],
+  "rows": [{ "股票名称": "示例银行", "成交量": 66570000 }],
+  "summary": "查询结果摘要",
+  "charts": [
+    { "type": "bar", "xAxis": "股票名称", "yAxis": "成交量", "title": "成交量 TOP 5" }
+  ]
+}
+
+若 charts 为空数组或不传，则不显示图表。type 支持 bar（柱状图）和 line（折线图）。
 
 ## 文档目录
 
@@ -117,8 +134,8 @@ frontend/index.html
 - 已建立 `backend/`、`frontend/`、`docs/`、`tests/` 基础结构。
 - 后端已提供 FastAPI mock 接口：健康检查、schema 查询、Text2SQL 查询。
 - 后端已预留数据库初始化脚本、AkShare 数据采集脚本位置、schema 读取模块、SQL 安全校验模块。
-- 前端已提供问答输入区、SQL 展示区、查询结果展示区、系统状态/测试结果区域。
-- `tests/text2sql_cases.json` 已提供第一批股票相关自然语言测试问题。
+- 前端已提供问答输入区、SQL 展示区、查询结果展示区、系统状态/测试结果区域，已接入ECharts。
+- `tests/text2sql_cases.json` 已提供第一批股票相关自然语言测试问题(含 mock 数据和图表配置)。
 - 课程要求文档已建立骨架，便于后续补充截图、测试结果和设计细节。
 
 ## 后续开发计划

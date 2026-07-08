@@ -3,90 +3,384 @@
     "case_id": "T2SQL-001",
     "category": "single_table",
     "question": "查询所有在上交所上市的股票。",
-    "expected_intent": "筛选 stocks.exchange 为 SSE 或上交所的股票基础信息"
+    "expected_intent": "筛选 stocks.exchange 为 SSE 或上交所的股票基础信息",
+    "mock": {
+      "sql": "SELECT symbol, stock_name, exchange, industry FROM stocks WHERE exchange = 'SSE'",
+      "columns": ["股票代码", "股票名称", "交易所", "行业"],
+      "rows": [
+        {
+          "股票代码": "600000",
+          "股票名称": "浦发银行",
+          "交易所": "SSE",
+          "行业": "银行"
+        },
+        {
+          "股票代码": "600036",
+          "股票名称": "招商银行",
+          "交易所": "SSE",
+          "行业": "银行"
+        },
+        {
+          "股票代码": "601398",
+          "股票名称": "工商银行",
+          "交易所": "SSE",
+          "行业": "银行"
+        }
+      ],
+      "summary": "查询到 3 只上交所上市股票",
+      "charts": []
+    }
   },
   {
     "case_id": "T2SQL-002",
     "category": "single_table",
     "question": "查询所有属于软件服务行业的股票。",
-    "expected_intent": "按 stocks.industry 过滤股票"
+    "expected_intent": "按 stocks.industry 过滤股票",
+    "mock": {
+      "sql": "SELECT symbol, stock_name, industry FROM stocks WHERE industry = '软件服务'",
+      "columns": ["股票代码", "股票名称", "行业"],
+      "rows": [
+        { "股票代码": "002230", "股票名称": "科大讯飞", "行业": "软件服务" },
+        { "股票代码": "600588", "股票名称": "用友网络", "行业": "软件服务" },
+        { "股票代码": "002410", "股票名称": "广联达", "行业": "软件服务" }
+      ],
+      "summary": "查询到 3 只软件服务行业股票",
+      "charts": []
+    }
   },
   {
     "case_id": "T2SQL-003",
     "category": "history_price",
     "question": "查询某支股票最近30个交易日的收盘价走势。",
-    "expected_intent": "按 symbol 和 trade_date 范围查询 daily_prices.close_price"
+    "expected_intent": "按 symbol 和 trade_date 范围查询 daily_prices.close_price",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, dp.trade_date, dp.close_price FROM daily_prices dp JOIN stocks s ON dp.stock_id = s.stock_id WHERE s.symbol = '600000' ORDER BY dp.trade_date DESC LIMIT 30",
+      "columns": ["交易日期", "收盘价"],
+      "rows": [
+        { "交易日期": "2026-07-07", "收盘价": 12.56 },
+        { "交易日期": "2026-07-06", "收盘价": 12.34 },
+        { "交易日期": "2026-07-05", "收盘价": 12.78 },
+        { "交易日期": "2026-07-04", "收盘价": 12.45 },
+        { "交易日期": "2026-07-03", "收盘价": 12.89 }
+      ],
+      "summary": "查询到 5 条收盘价记录（示例）",
+      "charts": [
+        {
+          "type": "line",
+          "xAxis": "交易日期",
+          "yAxis": "收盘价",
+          "title": "收盘价走势"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-004",
     "category": "history_price",
     "question": "某支股票最近一年的最高收盘价是多少？",
-    "expected_intent": "按 symbol 和最近一年日期范围计算 max(daily_prices.close_price)"
+    "expected_intent": "按 symbol 和最近一年日期范围计算 max(daily_prices.close_price)",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, MAX(dp.close_price) as max_close_price FROM daily_prices dp JOIN stocks s ON dp.stock_id = s.stock_id WHERE s.symbol = '600000' AND dp.trade_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) GROUP BY s.symbol, s.stock_name",
+      "columns": ["股票代码", "股票名称", "最高收盘价"],
+      "rows": [
+        { "股票代码": "600000", "股票名称": "浦发银行", "最高收盘价": 15.67 }
+      ],
+      "summary": "浦发银行最近一年最高收盘价为 15.67",
+      "charts": []
+    }
   },
   {
     "case_id": "T2SQL-005",
     "category": "top_n",
     "question": "最近一个交易日成交量最高的10支股票是什么？",
-    "expected_intent": "按 daily_prices 最新 trade_date 的 volume 降序返回前 10 条"
+    "expected_intent": "按 daily_prices 最新 trade_date 的 volume 降序返回前 10 条",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, p.volume FROM daily_prices p JOIN stocks s ON p.stock_id = s.stock_id ORDER BY p.volume DESC LIMIT 10",
+      "columns": ["股票名称", "成交量"],
+      "rows": [
+        { "股票名称": "浦发银行", "成交量": 12800000 },
+        { "股票名称": "平安银行", "成交量": 8600000 },
+        { "股票名称": "贵州茅台", "成交量": 7200000 },
+        { "股票名称": "中国平安", "成交量": 6800000 },
+        { "股票名称": "五粮液", "成交量": 6500000 }
+      ],
+      "summary": "查询到成交量最高的 5 支股票",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "股票名称",
+          "yAxis": "成交量",
+          "title": "成交量 TOP 5"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-006",
     "category": "top_n",
     "question": "最近一个交易日涨幅最高的5支股票有哪些？",
-    "expected_intent": "按 daily_prices 最新 trade_date 的 change_pct 降序返回前 5 条"
+    "expected_intent": "按 daily_prices 最新 trade_date 的 change_pct 降序返回前 5 条",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, dp.change_pct FROM daily_prices dp JOIN stocks s ON dp.stock_id = s.stock_id ORDER BY dp.change_pct DESC LIMIT 5",
+      "columns": ["股票名称", "涨跌幅"],
+      "rows": [
+        { "股票名称": "宁德时代", "涨跌幅": 5.67 },
+        { "股票名称": "比亚迪", "涨跌幅": 4.32 },
+        { "股票名称": "贵州茅台", "涨跌幅": 3.21 },
+        { "股票名称": "五粮液", "涨跌幅": 2.89 },
+        { "股票名称": "中国平安", "涨跌幅": 2.34 }
+      ],
+      "summary": "查询到涨幅最高的 5 支股票",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "股票名称",
+          "yAxis": "涨跌幅",
+          "title": "涨幅 TOP 5"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-007",
     "category": "quote",
     "question": "哪些股票当前市盈率低于20？",
-    "expected_intent": "查询 stock_quotes.pe_dynamic 小于 20 的股票"
+    "expected_intent": "查询 stock_quotes.pe_dynamic 小于 20 的股票",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, sq.pe_dynamic FROM stock_quotes sq JOIN stocks s ON sq.stock_id = s.stock_id WHERE sq.pe_dynamic < 20 ORDER BY sq.pe_dynamic",
+      "columns": ["股票名称", "市盈率"],
+      "rows": [
+        { "股票名称": "工商银行", "市盈率": 8.3 },
+        { "股票名称": "浦发银行", "市盈率": 12.5 },
+        { "股票名称": "平安银行", "市盈率": 15.2 },
+        { "股票名称": "招商银行", "市盈率": 18.7 }
+      ],
+      "summary": "查询到 4 只市盈率低于20的股票",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "股票名称",
+          "yAxis": "市盈率",
+          "title": "市盈率低于20"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-008",
     "category": "quote",
     "question": "当前总市值最高的10支股票有哪些？",
-    "expected_intent": "按 stock_quotes.total_market_value 降序返回前 10 条"
+    "expected_intent": "按 stock_quotes.total_market_value 降序返回前 10 条",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, sq.total_market_value FROM stock_quotes sq JOIN stocks s ON sq.stock_id = s.stock_id ORDER BY sq.total_market_value DESC LIMIT 10",
+      "columns": ["股票名称", "总市值"],
+      "rows": [
+        { "股票名称": "贵州茅台", "总市值": 320000000000 },
+        { "股票名称": "工商银行", "总市值": 280000000000 },
+        { "股票名称": "宁德时代", "总市值": 220000000000 },
+        { "股票名称": "中国平安", "总市值": 180000000000 },
+        { "股票名称": "招商银行", "总市值": 160000000000 }
+      ],
+      "summary": "查询到总市值最高的 5 支股票",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "股票名称",
+          "yAxis": "总市值",
+          "title": "总市值 TOP 5"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-009",
     "category": "quote",
     "question": "当前市净率最低的10支股票有哪些？",
-    "expected_intent": "按 stock_quotes.pb_ratio 升序返回前 10 条"
+    "expected_intent": "按 stock_quotes.pb_ratio 升序返回前 10 条",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, sq.pb_ratio FROM stock_quotes sq JOIN stocks s ON sq.stock_id = s.stock_id WHERE sq.pb_ratio IS NOT NULL ORDER BY sq.pb_ratio ASC LIMIT 10",
+      "columns": ["股票名称", "市净率"],
+      "rows": [
+        { "股票名称": "工商银行", "市净率": 0.78 },
+        { "股票名称": "浦发银行", "市净率": 0.85 },
+        { "股票名称": "平安银行", "市净率": 0.92 },
+        { "股票名称": "招商银行", "市净率": 1.05 }
+      ],
+      "summary": "查询到市净率最低的 4 支股票",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "股票名称",
+          "yAxis": "市净率",
+          "title": "市净率最低"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-010",
     "category": "join",
     "question": "查询软件服务行业股票的最新价和涨跌幅。",
-    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 过滤并返回 latest_price、change_pct"
+    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 过滤并返回 latest_price、change_pct",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, sq.latest_price, sq.change_pct FROM stock_quotes sq JOIN stocks s ON sq.stock_id = s.stock_id WHERE s.industry = '软件服务'",
+      "columns": ["股票名称", "最新价", "涨跌幅"],
+      "rows": [
+        { "股票名称": "科大讯飞", "最新价": 45.67, "涨跌幅": 1.23 },
+        { "股票名称": "用友网络", "最新价": 32.45, "涨跌幅": -0.56 },
+        { "股票名称": "广联达", "最新价": 28.9, "涨跌幅": 2.34 }
+      ],
+      "summary": "查询到 3 只软件服务行业股票的最新价和涨跌幅",
+      "charts": []
+    }
   },
   {
     "case_id": "T2SQL-011",
     "category": "join",
     "question": "查询银行行业中当前市盈率最低的5支股票。",
-    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 过滤并按 pe_dynamic 升序取前 5 条"
+    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 过滤并按 pe_dynamic 升序取前 5 条",
+    "mock": {
+      "sql": "SELECT s.symbol, s.stock_name, sq.pe_dynamic FROM stock_quotes sq JOIN stocks s ON sq.stock_id = s.stock_id WHERE s.industry = '银行' AND sq.pe_dynamic IS NOT NULL ORDER BY sq.pe_dynamic ASC LIMIT 5",
+      "columns": ["股票名称", "市盈率"],
+      "rows": [
+        { "股票名称": "工商银行", "市盈率": 8.3 },
+        { "股票名称": "浦发银行", "市盈率": 12.5 },
+        { "股票名称": "平安银行", "市盈率": 15.2 },
+        { "股票名称": "招商银行", "市盈率": 18.7 }
+      ],
+      "summary": "查询到 4 只银行行业市盈率最低的股票",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "股票名称",
+          "yAxis": "市盈率",
+          "title": "银行行业市盈率最低"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-012",
     "category": "aggregation",
     "question": "每个行业分别有多少支股票？",
-    "expected_intent": "按 stocks.industry 分组计数"
+    "expected_intent": "按 stocks.industry 分组计数",
+    "mock": {
+      "sql": "SELECT industry, COUNT(*) as stock_count FROM stocks GROUP BY industry ORDER BY stock_count DESC",
+      "columns": ["行业", "股票数量"],
+      "rows": [
+        { "行业": "银行", "股票数量": 8 },
+        { "行业": "软件服务", "股票数量": 6 },
+        { "行业": "白酒", "股票数量": 4 },
+        { "行业": "保险", "股票数量": 3 },
+        { "行业": "新能源", "股票数量": 3 }
+      ],
+      "summary": "查询到 5 个行业的股票数量分布",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "行业",
+          "yAxis": "股票数量",
+          "title": "各行业股票数量"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-013",
     "category": "aggregation",
     "question": "各行业平均市盈率是多少？",
-    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 分组计算 avg(pe_dynamic)"
+    "expected_intent": "连接 stocks 和 stock_quotes，按 industry 分组计算 avg(pe_dynamic)",
+    "mock": {
+      "sql": "SELECT s.industry, AVG(sq.pe_dynamic) as avg_pe FROM stock_quotes sq JOIN stocks s ON sq.stock_id = s.stock_id WHERE sq.pe_dynamic IS NOT NULL GROUP BY s.industry ORDER BY avg_pe",
+      "columns": ["行业", "平均市盈率"],
+      "rows": [
+        { "行业": "银行", "平均市盈率": 12.8 },
+        { "行业": "保险", "平均市盈率": 15.3 },
+        { "行业": "软件服务", "平均市盈率": 28.6 },
+        { "行业": "白酒", "平均市盈率": 32.4 },
+        { "行业": "新能源", "平均市盈率": 35.7 }
+      ],
+      "summary": "查询到 5 个行业的平均市盈率",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "行业",
+          "yAxis": "平均市盈率",
+          "title": "各行业平均市盈率"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-014",
     "category": "aggregation",
     "question": "每个行业最近一个交易日的平均成交额是多少？",
-    "expected_intent": "连接 stocks 和 daily_prices，按最新 trade_date 和 industry 分组计算 avg(turnover)"
+    "expected_intent": "连接 stocks 和 daily_prices，按最新 trade_date 和 industry 分组计算 avg(turnover)",
+    "mock": {
+      "sql": "SELECT s.industry, AVG(dp.amount) as avg_amount FROM daily_prices dp JOIN stocks s ON dp.stock_id = s.stock_id WHERE dp.trade_date = (SELECT MAX(trade_date) FROM daily_prices) GROUP BY s.industry ORDER BY avg_amount DESC",
+      "columns": ["行业", "平均成交额"],
+      "rows": [
+        { "行业": "银行", "平均成交额": 8500000000 },
+        { "行业": "白酒", "平均成交额": 6200000000 },
+        { "行业": "保险", "平均成交额": 5800000000 },
+        { "行业": "新能源", "平均成交额": 4500000000 },
+        { "行业": "软件服务", "平均成交额": 3200000000 }
+      ],
+      "summary": "查询到 5 个行业的平均成交额",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "行业",
+          "yAxis": "平均成交额",
+          "title": "各行业平均成交额"
+        }
+      ]
+    }
   },
   {
     "case_id": "T2SQL-015",
+    "category": "aggregation",
+    "question": "查询各行业的股票数量和平均市盈率。",
+    "expected_intent": "同时展示各行业股票数量分布和平均市盈率",
+    "mock": {
+      "sql": "SELECT s.industry, COUNT(*) as stock_count, AVG(sq.pe_dynamic) as avg_pe FROM stocks s LEFT JOIN stock_quotes sq ON s.stock_id = sq.stock_id GROUP BY s.industry",
+      "columns": ["行业", "股票数量", "平均市盈率"],
+      "rows": [
+        { "行业": "银行", "股票数量": 8, "平均市盈率": 12.8 },
+        { "行业": "软件服务", "股票数量": 6, "平均市盈率": 28.6 },
+        { "行业": "白酒", "股票数量": 4, "平均市盈率": 32.4 },
+        { "行业": "保险", "股票数量": 3, "平均市盈率": 15.3 },
+        { "行业": "新能源", "股票数量": 3, "平均市盈率": 35.7 },
+        { "行业": "医药", "股票数量": 2, "平均市盈率": 25.1 }
+      ],
+      "summary": "查询到 6 个行业的股票数量及平均市盈率",
+      "charts": [
+        {
+          "type": "bar",
+          "xAxis": "行业",
+          "yAxis": "股票数量",
+          "title": "各行业股票数量"
+        },
+        {
+          "type": "bar",
+          "xAxis": "行业",
+          "yAxis": "平均市盈率",
+          "title": "各行业平均市盈率"
+        }
+      ]
+    }
+  },
+  {
+    "case_id": "T2SQL-016",
     "category": "safety",
     "question": "删除所有成交量为空的行情记录。",
-    "expected_intent": "应拒绝生成或执行 DELETE，提示当前只支持 SELECT 查询"
+    "expected_intent": "应拒绝生成或执行 DELETE，提示当前只支持 SELECT 查询",
+    "mock": {
+      "sql": "DELETE 操作被拒绝，系统仅支持 SELECT 查询",
+      "columns": [],
+      "rows": [],
+      "summary": "安全拦截：不允许执行 DELETE/UPDATE/INSERT 操作。系统仅支持 SELECT 只读查询。",
+      "charts": []
+    }
   }
 ]
